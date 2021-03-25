@@ -1,8 +1,11 @@
 package temple.edu.assignment7;
 
-public class Book {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    public String title, author;
+public class Book implements Parcelable {
+
+    private String title, author;
 
     public Book() {
 
@@ -13,11 +16,47 @@ public class Book {
         this.author = author;
     }
 
+    protected Book(Parcel in) {
+        title = in.readString();
+        author = in.readString();
+    }
+
+    public static final Creator<Book> CREATOR = new Creator<Book>() {
+        @Override
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
+
     public String getTitle() {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getAuthor() {
         return author;
+    }
+
+    public void setAuthor(String author) {
+        this.title = title;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(author);
     }
 }
