@@ -25,16 +25,16 @@ public class BookAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        TextView textView;
+        TextView textViewTitle;
 
         if (convertView == null) {
-            textView = new TextView(context);
-            textView.setTextSize(22);
-            textView.setPadding(15, 20, 0, 20);
+            textViewTitle = new TextView(context);
+            textViewTitle.setTextSize(22);
+            textViewTitle.setPadding(15, 20, 0, 20);
         } else {
-            textView = (TextView) convertView;
+            textViewTitle = (TextView) convertView;
         }
-        textView.setText(((Book)(getItem(position))).getTitle());
-        return textView;
+        textViewTitle.setText(((Book)(getItem(position))).getTitle());
+        return textViewTitle;
     }
 }

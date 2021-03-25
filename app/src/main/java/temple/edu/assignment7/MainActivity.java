@@ -6,32 +6,43 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookListFragmentInterface {
 
-    ArrayList<Book> bookArrayList;
+    BookList bookList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bookArrayList = new ArrayList<>();
+        bookList = new BookList();
 
-        bookArrayList.add(new Book("The Hobbit", "J.R.R. Tolkien"));
-        bookArrayList.add(new Book("The Cat In the Hat", "Dr. Seuss"));
-        bookArrayList.add(new Book("Pinocchio", "Carlo Collodi"));
-        bookArrayList.add(new Book("Harry Potter and the Sorcerers Stone", "J.K Rowling"));
-        bookArrayList.add(new Book("The Lion, The Witch, and The Wardrobe", "C.S Lewis"));
-        bookArrayList.add(new Book("And Then There Were None", "Agatha Christie"));
-        bookArrayList.add(new Book("Catcher in the Rye", "J.D. Salinger"));
-        bookArrayList.add(new Book("Anne of Green Gables", "L.M. Montgomery"));
-        bookArrayList.add(new Book("Twenty Thousand Leagues Under the Sea", "Jules Verne"));
-        bookArrayList.add(new Book("The Eagle Has Landed", "Jack Higgins"));
+        bookList.add(new Book("The Hobbit", "J.R.R. Tolkien"));
+        bookList.add(new Book("The Cat In the Hat", "Dr. Seuss"));
+        bookList.add(new Book("Pinocchio", "Carlo Collodi"));
+        bookList.add(new Book("Harry Potter and the Sorcerers Stone", "J.K Rowling"));
+        bookList.add(new Book("The Lion, The Witch, and The Wardrobe", "C.S Lewis"));
+        bookList.add(new Book("And Then There Were None", "Agatha Christie"));
+        bookList.add(new Book("Catcher in the Rye", "J.D. Salinger"));
+        bookList.add(new Book("Anne of Green Gables", "L.M. Montgomery"));
+        bookList.add(new Book("Twenty Thousand Leagues Under the Sea", "Jules Verne"));
+        bookList.add(new Book("The Eagle Has Landed", "Jack Higgins"));
+
+        if (getSupportFragmentManager().findFragmentById(R.id.container_1) instanceof BookListFragment) {
+
+        }
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.container_1, BookListFragment.newInstance(bookArrayList))
+                .add(R.id.container_1, BookListFragment.newInstance(bookList))
+                .addToBackStack(null)
                 .commit();
+
+    }
+
+
+    @Override
+    public void bookClicked(int position) {
 
     }
 }
