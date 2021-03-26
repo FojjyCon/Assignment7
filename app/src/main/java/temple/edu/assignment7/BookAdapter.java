@@ -25,16 +25,17 @@ public class BookAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        TextView textViewTitle;
+        TextView textView;
+        String titleAuthor = ((Book)(getItem(position))).getTitle() + "\r\n" + ((Book)(getItem(position))).getAuthor();
 
         if (convertView == null) {
-            textViewTitle = new TextView(context);
-            textViewTitle.setTextSize(22);
-            textViewTitle.setPadding(15, 20, 0, 20);
+            textView = new TextView(context);
+            textView.setTextSize(22);
+            textView.setPadding(15, 20, 0, 20);
         } else {
-            textViewTitle = (TextView) convertView;
+            textView = (TextView) convertView;
         }
-        textViewTitle.setText(((Book)(getItem(position))).getTitle());
-        return textViewTitle;
+        textView.setText(titleAuthor);
+        return textView;
     }
 }

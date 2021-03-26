@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     BookList bookList;
     BookDetailsFragment bookDetailsFragment;
     boolean container2Present;
+    int bookIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
 
         if (savedInstanceState != null) {
-            savedInstanceState.getParcelable(String.valueOf(bookList));
+            //bookDetailsFragment = new BookDetailsFragment();
+            int paramInt = savedInstanceState.getInt(String.valueOf(bookIndex));
         }
 
     }
@@ -57,7 +59,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     @Override
     public void bookClicked(int position) {
+
         if (!container2Present) {
+
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container_1, BookDetailsFragment.newInstance(bookList.get(position)))
@@ -66,12 +70,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         } else {
             bookDetailsFragment.changeBook(bookList.get(position));
         }
+        bookIndex = position;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelable("param1", book);
+
+        outState.putInt("param1", bookIndex);
     }
 
 }
