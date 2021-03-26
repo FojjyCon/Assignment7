@@ -1,19 +1,25 @@
 package temple.edu.assignment7;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookListFragmentInterface {
 
     BookList bookList;
+    BookDetailsFragment bookDetailsFragment;
+    boolean container2Present;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        container2Present = findViewById(R.id.container_2) != null;
 
         bookList = new BookList();
 
@@ -28,21 +34,44 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         bookList.add(new Book("Twenty Thousand Leagues Under the Sea", "Jules Verne"));
         bookList.add(new Book("The Eagle Has Landed", "Jack Higgins"));
 
-        if (getSupportFragmentManager().findFragmentById(R.id.container_1) instanceof BookListFragment) {
-
-        }
-
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.container_1, BookListFragment.newInstance(bookList))
-                .addToBackStack(null)
+                .replace(R.id.container_1, BookListFragment.newInstance(bookList))
                 .commit();
+
+        if (container2Present) {
+            bookDetailsFragment = new BookDetailsFragment();
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container_2, bookDetailsFragment)
+                    .commit();
+        }
+
+        if (savedInstanceState != null) {
+            savedInstanceState.getParcelable(String.valueOf(bookList));
+        }
 
     }
 
 
     @Override
     public void bookClicked(int position) {
-
+        if (!container2Present) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container_1, BookDetailsFragment.newInstance(bookList.get(position)))
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            bookDetailsFragment.changeBook(bookList.get(position));
+        }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putParcelable("param1", book);
+    }
+
 }

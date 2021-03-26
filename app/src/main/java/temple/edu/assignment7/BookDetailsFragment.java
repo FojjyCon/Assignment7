@@ -56,7 +56,7 @@ public class BookDetailsFragment extends Fragment {
         return v;
     }
 
-    private void changeBook(Book book) {
+    void changeBook(Book book) {
         txtTitle.setText(book.getTitle());
         txtAuthor.setText(book.getAuthor());
     }
