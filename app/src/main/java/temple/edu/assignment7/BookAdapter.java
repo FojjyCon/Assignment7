@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,17 +26,34 @@ public class BookAdapter extends ArrayAdapter {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        TextView textView;
-        String titleAuthor = ((Book)(getItem(position))).getTitle() + "\r\n" + ((Book)(getItem(position))).getAuthor();
+        TextView textViewTitle;
+        TextView textViewAuthor;
+        LinearLayout linearLayout;
+
+        String title = ((Book)(getItem(position))).getTitle();
+        String author = ((Book)(getItem(position))).getAuthor();
 
         if (convertView == null) {
-            textView = new TextView(context);
-            textView.setTextSize(22);
-            textView.setPadding(15, 20, 0, 20);
+            linearLayout = new LinearLayout(context);
+            textViewTitle = new TextView(context);
+            textViewTitle.setTextSize(22);
+            textViewTitle.setPadding(15, 20, 0, 20);
+
+
+            textViewAuthor = new TextView(context);
+            textViewAuthor.setTextSize(14);
+            textViewTitle.setPadding(15, 20, 0, 20);
+
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            linearLayout.addView(textViewTitle);
+            linearLayout.addView(textViewAuthor);
         } else {
-            textView = (TextView) convertView;
+            linearLayout = (LinearLayout) convertView;
+            textViewTitle = (TextView) linearLayout.getChildAt(0); //linearLayout.getChildAt(1);
+            textViewAuthor = (TextView) linearLayout.getChildAt(1); //linearLayout.getChildAt(1);
         }
-        textView.setText(titleAuthor);
-        return textView;
+        textViewTitle.setText(title);
+        textViewAuthor.setText(author);
+        return linearLayout;
     }
 }
