@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         bookList = new BookList();
 
+        /*
         bookList.add(new Book("The Hobbit", "J.R.R. Tolkien"));
         bookList.add(new Book("The Cat In the Hat", "Dr. Seuss"));
         bookList.add(new Book("Pinocchio", "Carlo Collodi"));
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         bookList.add(new Book("Anne of Green Gables", "L.M. Montgomery"));
         bookList.add(new Book("Twenty Thousand Leagues Under the Sea", "Jules Verne"));
         bookList.add(new Book("The Eagle Has Landed", "Jack Higgins"));
+         */
 
         getSupportFragmentManager()
                 .beginTransaction()
