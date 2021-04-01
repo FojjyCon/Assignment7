@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BookDetailsFragment extends Fragment {
@@ -16,6 +17,7 @@ public class BookDetailsFragment extends Fragment {
 
     TextView txtTitle;
     TextView txtAuthor;
+    ImageView imgBookCover;
 
     private Book book;
 
@@ -59,5 +61,6 @@ public class BookDetailsFragment extends Fragment {
     void changeBook(Book book) {
         txtTitle.setText(book.getTitle());
         txtAuthor.setText(book.getAuthor());
+        //imgBookCover.setImageResource(Integer.valueOf(book.getCoverURL());
     }
 }

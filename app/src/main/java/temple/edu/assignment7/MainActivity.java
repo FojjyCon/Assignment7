@@ -3,8 +3,11 @@ package temple.edu.assignment7;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -56,8 +59,19 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if (savedInstanceState != null) {
             //bookDetailsFragment = new BookDetailsFragment();
             bookList = (BookList) savedInstanceState.getParcelableArrayList(ARG_BOOKLIST);
-
         }
+
+
+        Button btnSearchMain = findViewById(R.id.btnSearchMain);
+
+        btnSearchMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchIntent = new Intent(MainActivity.this, BookSearchActivity.class);
+                startActivity(launchIntent);
+            }
+        });
+
     }
 
 

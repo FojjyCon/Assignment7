@@ -30,4 +30,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewTitle"
         app:layout_constraintVertical_bias="0.072" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="338dp"
+        android:layout_height="498dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAuthor"
+        tools:src="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>
