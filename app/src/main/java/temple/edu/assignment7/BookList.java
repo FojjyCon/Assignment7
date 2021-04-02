@@ -1,5 +1,6 @@
 package temple.edu.assignment7;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
@@ -7,12 +8,12 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class BookList extends ArrayList<Parcelable> {
+public class BookList implements Parcelable {
 
     private ArrayList<Book> alBook;
 
     public BookList() {
-        alBook = new ArrayList<Book>();
+        alBook = new ArrayList<>();
     }
 
     public void add(Book book) {
@@ -31,10 +32,29 @@ public class BookList extends ArrayList<Parcelable> {
         return alBook.size();
     }
 
-    @NonNull
-    @Override
-    public Stream<Parcelable> stream() {
-        return null;
+    protected BookList(Parcel in) {
+        alBook = in.createTypedArrayList(Book.CREATOR);
     }
 
+    public static final Creator<BookList> CREATOR = new Creator<BookList>() {
+        @Override
+        public BookList createFromParcel(Parcel in) {
+            return new BookList(in);
+        }
+
+        @Override
+        public BookList[] newArray(int size) {
+            return new BookList[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeTypedList(alBook);
+    }
 }

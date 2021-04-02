@@ -2,9 +2,11 @@ package temple.edu.assignment7;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,47 +15,41 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-public class BookAdapter extends ArrayAdapter {
+public class BookAdapter extends BaseAdapter {
 
     Context context;
+    BookList bookList;
 
-    public BookAdapter(@NonNull Context context, int resource, @NonNull List objects) {
-        super(context, resource, objects);
+    public BookAdapter (Context context, BookList bookList) {
         this.context = context;
+        this.bookList = bookList;
     }
+
+    @Override
+    public int getCount() { return bookList.size(); }
+
+    @Override
+    public Object getItem(int position) { return bookList.get(position); }
+
+    @Override
+    public long getItemId(int position) { return 0; }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        TextView textViewTitle;
-        TextView textViewAuthor;
-        LinearLayout linearLayout;
+        TextView textViewTitle, textViewAuthor;
 
-        String title = ((Book)(getItem(position))).getTitle();
-        String author = ((Book)(getItem(position))).getAuthor();
-
-        if (convertView == null) {
-            linearLayout = new LinearLayout(context);
-            textViewTitle = new TextView(context);
-            textViewTitle.setTextSize(22);
-            textViewTitle.setPadding(15, 20, 0, 20);
-
-
-            textViewAuthor = new TextView(context);
-            textViewAuthor.setTextSize(14);
-            textViewTitle.setPadding(15, 20, 0, 20);
-
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.addView(textViewTitle);
-            linearLayout.addView(textViewAuthor);
-        } else {
-            linearLayout = (LinearLayout) convertView;
-            textViewTitle = (TextView) linearLayout.getChildAt(0); //linearLayout.getChildAt(1);
-            textViewAuthor = (TextView) linearLayout.getChildAt(1); //linearLayout.getChildAt(1);
+        if (!(convertView instanceof LinearLayout)) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.fragment_book_details, parent, false);
         }
-        textViewTitle.setText(title);
-        textViewAuthor.setText(author);
-        return linearLayout;
+
+        textViewTitle = convertView.findViewById(R.id.textViewTitle);
+        textViewAuthor = convertView.findViewById(R.id.textViewAuthor);
+
+        textViewTitle.setText(((Book) getItem(position)).getTitle());
+        textViewAuthor.setText(((Book) getItem(position)).getAuthor());
+
+        return convertView;
     }
 }

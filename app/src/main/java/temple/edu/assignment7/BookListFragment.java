@@ -1,5 +1,6 @@
 package temple.edu.assignment7;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -18,12 +19,14 @@ public class BookListFragment extends Fragment {
 
     private BookList bookList;
 
+    BookListFragmentInterface parentActivity;
+
     public BookListFragment() {}
 
     public static BookListFragment newInstance(BookList bookList) {
         BookListFragment fragment = new BookListFragment();
         Bundle args = new Bundle();
-        args.putParcelableArrayList(ARG_BOOKLIST, bookList);
+        args.putParcelable(ARG_BOOKLIST, bookList);
         //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
@@ -33,7 +36,7 @@ public class BookListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            bookList = (BookList) getArguments().getParcelableArrayList(ARG_BOOKLIST);
+            bookList = getArguments().getParcelable(ARG_BOOKLIST);
             //mParam2 = getArguments().getString(ARG_PARAM2);
         } else {
             bookList = new BookList();
@@ -45,16 +48,28 @@ public class BookListFragment extends Fragment {
                              Bundle savedInstanceState) {
         ListView listView = (ListView) inflater.inflate(R.layout.fragment_book_list, container, false);
 
-        listView.setAdapter(new BookAdapter(getActivity(), android.R.layout.simple_list_item_1, bookList));
+        listView.setAdapter(new BookAdapter(getContext(), bookList));
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ((BookListFragmentInterface) getActivity()).bookClicked(position);
+                parentActivity.bookClicked(position);
             }
         });
 
         return listView;
-        //return inflater.inflate(R.layout.fragment_book_list, container, false);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof BookListFragmentInterface) {
+            parentActivity = (BookListFragmentInterface) context;
+        } else {
+            throw new RuntimeException("Please implement the required interface(s)");
+        }
     }
 
     interface BookListFragmentInterface {

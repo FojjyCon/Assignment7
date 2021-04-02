@@ -10,12 +10,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,86 +36,69 @@ import java.net.URL;
 
 public class BookSearchActivity extends AppCompatActivity {
 
-    Handler downloadHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(@NonNull Message msg) {
+    Button btnUserSearch;
+    Button btnUserCancel;
+    EditText editTextUrl;
 
-            return false;
-        }
-    });
+    RequestQueue rq;
+
+    BookList bookList = new BookList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_book_search);
 
+        btnUserSearch = findViewById(R.id.btnBookSearch);
+        btnUserCancel = findViewById(R.id.btnBookCancel);
+        editTextUrl = findViewById(R.id.txtBookSearch);
 
-        /*btnSearch.setOnClickListener(new View.OnClickListener() {
+        rq = Volley.newRequestQueue(this);
+
+        btnUserCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread() {
-                    public void run() {
-                        try {
-                            URL url = new URL(editTextUrl.getText().toString());
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-
-                            Message msg = Message.obtain();
-                            StringBuilder sb = new StringBuilder();
-                            String str;
-
-                            while ((str = reader.readLine()) != null) {
-                                sb.append(str);
-                            }
-
-                            msg.obj = reader.readLine();
-                            downloadHandler.sendMessage(msg);
-
-                        } catch (Exception e ) {
-                            e.printStackTrace();
-                        }
-                    }
-                }.start();
+                finish();
             }
-        });*/
+        });
 
-        final EditText prompt = new EditText(this);
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-            adb.setTitle("My title");
-            adb.setView(prompt);
-            adb.setPositiveButton("Search", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String myText = prompt.getText().toString();
+        btnUserSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String urlString = "https://kamorris.com/lab/cis3515/search.php?term=" + editTextUrl.getText().toString();
+                JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, urlString, null, new Response.Listener<JSONArray>() {
+                    public void onResponse(JSONArray response) {
+                        if (response.length() > 0) {
+                            //bookList.clear();
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+                                    JSONObject bookJSON;
+                                    bookJSON = response.getJSONObject(i);
+                                    bookList.add(new Book(bookJSON.getString("title"),
+                                            bookJSON.getString("author"),
+                                            bookJSON.getString("cover_url"),
+                                            bookJSON.getInt("id")));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
 
+                        }
+                        Intent launchIntent = new Intent(BookSearchActivity.this, MainActivity.class);
+                        launchIntent.putExtra("Books", (Parcelable) bookList);
 
+                        startActivity(launchIntent);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-
-
-
-                    Intent launchIntent = new Intent(BookSearchActivity.this, BookListFragment.class);
-                    startActivity(launchIntent);
-                }
-            });
-            adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            });
-            AlertDialog promptDialog = adb.create();
-            promptDialog.show();
-
-
+                    }
+                });
+                rq.add(jsonArrayRequest);
+            }
+        });
     }
 
-    /*
-    private String sanitizeURL(String url) {
-        if (url.startsWith("http")) {
-            return url;
-        }else {
-            editTextUrl.setText("https://" + url);
-            return "https://" + url;
-        }
-    }
-     */
 }

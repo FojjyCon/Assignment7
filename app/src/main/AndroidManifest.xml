@@ -13,7 +13,8 @@
         android:theme="@style/Theme.Assignment7">
         <activity
             android:name=".BookSearchActivity"
-            android:theme="@style/Theme.AppCompat.Dialog.Alert">
+            android:theme="@style/Theme.AppCompat.Dialog.Alert"
+            android:excludeFromRecents="true">
 
         </activity>
         <activity android:name=".MainActivity">

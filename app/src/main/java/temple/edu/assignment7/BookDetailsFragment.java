@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 public class BookDetailsFragment extends Fragment {
 
     private static final String ARG_BOOK = "param1";
@@ -61,6 +63,5 @@ public class BookDetailsFragment extends Fragment {
     void changeBook(Book book) {
         txtTitle.setText(book.getTitle());
         txtAuthor.setText(book.getAuthor());
-        //imgBookCover.setImageResource(Integer.valueOf(book.getCoverURL());
     }
 }
