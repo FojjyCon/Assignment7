@@ -15,15 +15,15 @@ public class Book implements Parcelable {
     public Book(String title, String author, String coverURL, int id) {
         this.title = title;
         this.author = author;
-        this.id = id;
         this.coverURL = coverURL;
+        this.id = id;
     }
 
     protected Book(Parcel in) {
         title = in.readString();
         author = in.readString();
+        coverURL = in.readString();
         id = in.readInt();
-        this.coverURL = in.readString();
     }
 
     public static final Creator<Book> CREATOR = new Creator<Book>() {
@@ -79,5 +79,7 @@ public class Book implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
         dest.writeString(author);
+        dest.writeString(coverURL);
+        dest.writeInt(id);
     }
 }

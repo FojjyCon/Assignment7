@@ -52,6 +52,7 @@ public class BookDetailsFragment extends Fragment {
 
         txtTitle = v.findViewById(R.id.textViewTitle);
         txtAuthor = v.findViewById(R.id.textViewAuthor);
+        imgBookCover = v.findViewById(R.id.imageView);
         if (book != null) {
             changeBook(book);
         }
@@ -63,5 +64,6 @@ public class BookDetailsFragment extends Fragment {
     void changeBook(Book book) {
         txtTitle.setText(book.getTitle());
         txtAuthor.setText(book.getAuthor());
+        Picasso.get().load(book.getCoverURL()).into(imgBookCover);
     }
 }

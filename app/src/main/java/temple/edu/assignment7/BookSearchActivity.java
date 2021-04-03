@@ -69,7 +69,6 @@ public class BookSearchActivity extends AppCompatActivity {
                 JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, urlString, null, new Response.Listener<JSONArray>() {
                     public void onResponse(JSONArray response) {
                         if (response.length() > 0) {
-                            //bookList.clear();
                             for (int i = 0; i < response.length(); i++) {
                                 try {
                                     JSONObject bookJSON;
@@ -86,9 +85,9 @@ public class BookSearchActivity extends AppCompatActivity {
 
                         }
                         Intent launchIntent = new Intent(BookSearchActivity.this, MainActivity.class);
-                        launchIntent.putExtra("Books", (Parcelable) bookList);
-
+                        launchIntent.putExtra("Books", bookList);
                         startActivity(launchIntent);
+                        finish();
                     }
                 }, new Response.ErrorListener() {
                     @Override
