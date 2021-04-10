@@ -76,7 +76,8 @@ public class BookSearchActivity extends AppCompatActivity {
                                     bookList.add(new Book(bookJSON.getString("title"),
                                             bookJSON.getString("author"),
                                             bookJSON.getString("cover_url"),
-                                            bookJSON.getInt("id")));
+                                            bookJSON.getInt("id"),
+                                            bookJSON.getInt("duration")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

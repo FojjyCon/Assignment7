@@ -1,35 +1,57 @@
 package temple.edu.assignment7;
 
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import edu.temple.audiobookplayer.AudiobookService;
 
 public class ControlFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private Book book;
+
+    boolean connected;
+    boolean playWasClicked;
+    boolean playStatus;
+
+    BookDetailsFragment bookDetailsFragment;
+
+    TextView nowPlaying;
+    Button play, pause, stop;
+    SeekBar seekbar;
+
+    AudiobookService.MediaControlBinder mediaControlBinder;
+    Intent bindIntent;
+
+    ControlFragmentInterface parentActivity;
+
+    interface ControlFragmentInterface{
+        void play();
+        void pause();
+        void stop();
+    };
 
     public ControlFragment() {
-        // Required empty public constructor
     }
 
-
-    // TODO: Rename and change types and number of parameters
-    public static ControlFragment newInstance(String param1, String param2) {
+    public static ControlFragment newInstance(Book book) {
         ControlFragment fragment = new ControlFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putParcelable(ARG_PARAM1, book);
         fragment.setArguments(args);
         return fragment;
     }
@@ -38,8 +60,8 @@ public class ControlFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            book = getArguments().getParcelable(ARG_PARAM1);
+            //mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -47,6 +69,96 @@ public class ControlFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_control, container, false);
+        View v = inflater.inflate(R.layout.fragment_control, container, false);
+
+        play = v.findViewById(R.id.btnPlay);
+        pause = v.findViewById(R.id.btnPause);
+        stop = v.findViewById(R.id.btnStop);
+        nowPlaying = v.findViewById(R.id.txtNowPlaying);
+        seekbar = v.findViewById(R.id.sbState);
+
+        if (book != null) {
+            changeBook(book);
+        }
+
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                if(connected){
+                    if(mediaControlBinder.isPlaying()){
+                        mediaControlBinder.play();
+                        if(book != null){
+                            updatePlayStatus(bookDetailsFragment,false);
+                        }
+                    }else{
+                        mediaControlBinder.play();
+                        if(book != null){
+                            if(playWasClicked){
+                                updatePlayStatus(bookDetailsFragment,false);
+                            }
+                        }
+                    }
+                }
+
+                 */
+            }
+        });
+
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                if(connected){
+                    if(mediaControlBinder.isPlaying()){
+                        mediaControlBinder.pause();
+                        if(book != null){
+                            updatePlayStatus(bookDetailsFragment,false);
+                        }
+                    }else{
+                        mediaControlBinder.pause();
+                        if(book != null){
+                            if(playWasClicked){
+                                updatePlayStatus(bookDetailsFragment,false);
+                            }
+                        }
+                    }
+                }
+
+                 */
+            }
+        });
+
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                if(connected){
+                    playWasClicked = false;
+                    mediaControlBinder.stop();
+                    if(book!=null){
+                        seekbar.setProgress(0);
+                    }
+                    stopService(bindIntent);
+                }
+
+                 */
+            }
+        });
+
+
+
+        return v;
     }
+
+    void changeBook(Book book) {
+        nowPlaying.setText("Now Playing: " + book.getTitle());
+    }
+/*
+    public void updatePlayStatus(BookDetailsFragment detailsFragment, boolean playing) {
+        nowPlaying.setText("Now Playing: " + book.getTitle());
+        nowPlaying.append(book.getTitle());
+    }
+*/
+
 }

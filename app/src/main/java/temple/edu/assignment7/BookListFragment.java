@@ -73,7 +73,7 @@ public class BookListFragment extends Fragment {
     }
 
     interface BookListFragmentInterface {
-        public void bookClicked(int position);
+        void bookClicked(int position);
     }
 
 }

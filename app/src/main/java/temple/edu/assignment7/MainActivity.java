@@ -1,16 +1,27 @@
 package temple.edu.assignment7;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 
-public class MainActivity extends AppCompatActivity implements BookListFragment.BookListFragmentInterface {
+import edu.temple.audiobookplayer.AudiobookService;
+
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookListFragmentInterface, ControlFragment.ControlFragmentInterface {
 
     FragmentManager fragManage;
 
@@ -20,12 +31,69 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     boolean container2Present;
     int bookIndex;
 
+    Handler mediaControlHandler;
+    AudiobookService.MediaControlBinder mediaControlBinder;
+    boolean connected;
+    int duration;
+    Uri bookUri;
+    SeekBar seekbar;
+
+    private int currentBookId = -1;
+    private Uri currentBookUri;
+    private final MediaPlayer mediaPlayer = new MediaPlayer();
+
     private static final String ARG_BOOKLIST = "param1";
+
+    ServiceConnection bookServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mediaControlBinder = (AudiobookService.MediaControlBinder) service;
+            mediaControlBinder.setProgressHandler(mediaControlHandler);
+            connected = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            connected = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mediaControlHandler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(@NonNull Message msg) {
+                final AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) msg.obj;
+                seekbar.setMax(duration);
+                if(mediaControlBinder.isPlaying()){
+                    seekbar.setProgress(bookProgress.getProgress());
+                    bookUri = bookProgress.getBookUri();
+                }
+                seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        if(fromUser){
+                            mediaControlBinder.seekTo(progress);
+
+                        }
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+                return false;
+            }
+        });
 
         if (savedInstanceState != null) {
             //bookDetailsFragment = new BookDetailsFragment();
@@ -81,10 +149,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container_1, BookListFragment.newInstance(bookList))
+                    .replace(R.id.container_control, ControlFragment.newInstance(book))
                     .commit();
         }
 
     }
+
+
 
     public void onBackPressed() {
         book = null;
@@ -117,4 +188,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         outState.putParcelable(ARG_BOOKLIST, book);
     }
 
+    @Override
+    public void play() {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
 }
