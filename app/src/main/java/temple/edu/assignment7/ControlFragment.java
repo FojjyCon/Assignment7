@@ -26,10 +26,6 @@ public class ControlFragment extends Fragment {
 
     private Book book;
 
-    boolean connected;
-
-    int duration = 0;
-
     TextView nowPlaying;
     Button btnPlay, btnPause, btnStop;
     SeekBar seekbar;
