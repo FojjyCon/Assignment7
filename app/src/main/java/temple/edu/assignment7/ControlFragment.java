@@ -1,8 +1,10 @@
 package temple.edu.assignment7;
 
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -25,24 +27,17 @@ public class ControlFragment extends Fragment {
     private Book book;
 
     boolean connected;
-    boolean playWasClicked;
-    boolean playStatus;
-
-    BookDetailsFragment bookDetailsFragment;
 
     TextView nowPlaying;
-    Button play, pause, stop;
+    Button btnPlay, btnPause, btnStop;
     SeekBar seekbar;
-
-    AudiobookService.MediaControlBinder mediaControlBinder;
-    Intent bindIntent;
 
     ControlFragmentInterface parentActivity;
 
     interface ControlFragmentInterface{
-        void play();
-        void pause();
-        void stop();
+        void playBook(int i);
+        void pauseBook(int i);
+        void stopBook(int i);
     };
 
     public ControlFragment() {
@@ -71,78 +66,51 @@ public class ControlFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_control, container, false);
 
-        play = v.findViewById(R.id.btnPlay);
-        pause = v.findViewById(R.id.btnPause);
-        stop = v.findViewById(R.id.btnStop);
+        btnPlay = v.findViewById(R.id.btnPlay);
+        btnPause = v.findViewById(R.id.btnPause);
+        btnStop = v.findViewById(R.id.btnStop);
         nowPlaying = v.findViewById(R.id.txtNowPlaying);
         seekbar = v.findViewById(R.id.sbState);
 
-        if (book != null) {
-            changeBook(book);
-        }
-
-        play.setOnClickListener(new View.OnClickListener() {
+        btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                if(connected){
-                    if(mediaControlBinder.isPlaying()){
-                        mediaControlBinder.play();
-                        if(book != null){
-                            updatePlayStatus(bookDetailsFragment,false);
-                        }
-                    }else{
-                        mediaControlBinder.play();
-                        if(book != null){
-                            if(playWasClicked){
-                                updatePlayStatus(bookDetailsFragment,false);
-                            }
-                        }
-                    }
+                parentActivity.playBook(book.getId());
+                //parentActivity.playBook(1);
+                if (book != null) {
+                    changeBook(book);
                 }
-
-                 */
             }
         });
 
-        pause.setOnClickListener(new View.OnClickListener() {
+        btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                if(connected){
-                    if(mediaControlBinder.isPlaying()){
-                        mediaControlBinder.pause();
-                        if(book != null){
-                            updatePlayStatus(bookDetailsFragment,false);
-                        }
-                    }else{
-                        mediaControlBinder.pause();
-                        if(book != null){
-                            if(playWasClicked){
-                                updatePlayStatus(bookDetailsFragment,false);
-                            }
-                        }
-                    }
-                }
-
-                 */
+                parentActivity.pauseBook(book.getId());
             }
         });
 
-        stop.setOnClickListener(new View.OnClickListener() {
+        btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                if(connected){
-                    playWasClicked = false;
-                    mediaControlBinder.stop();
-                    if(book!=null){
-                        seekbar.setProgress(0);
-                    }
-                    stopService(bindIntent);
-                }
+                parentActivity.stopBook(book.getId());
+            }
+        });
 
-                 */
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -154,11 +122,20 @@ public class ControlFragment extends Fragment {
     void changeBook(Book book) {
         nowPlaying.setText("Now Playing: " + book.getTitle());
     }
-/*
+
     public void updatePlayStatus(BookDetailsFragment detailsFragment, boolean playing) {
         nowPlaying.setText("Now Playing: " + book.getTitle());
-        nowPlaying.append(book.getTitle());
     }
-*/
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof BookListFragment.BookListFragmentInterface) {
+            parentActivity = (ControlFragment.ControlFragmentInterface) context;
+        } else {
+            throw new RuntimeException("Please implement the required interface(s)");
+        }
+    }
 
 }

@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
+import android.service.controls.Control;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -28,22 +29,27 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     BookList bookList;
     Book book;
     BookDetailsFragment bookDetailsFragment;
+    ControlFragment controlFragment;
     boolean container2Present;
     int bookIndex;
 
-    Handler mediaControlHandler;
     AudiobookService.MediaControlBinder mediaControlBinder;
-    boolean connected;
+    boolean connected = true;
     int duration;
     Uri bookUri;
     SeekBar seekbar;
+    boolean playWasClicked;
+    boolean PLAYING = true;
 
+    Intent bindIntent;
     private int currentBookId = -1;
     private Uri currentBookUri;
+
     private final MediaPlayer mediaPlayer = new MediaPlayer();
 
     private static final String ARG_BOOKLIST = "param1";
 
+    // service connection
     ServiceConnection bookServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -58,47 +64,68 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
     };
 
+    /*
+    Handler progressHandler = new Handler(new Handler.Callback() {
+
+        @Override
+        public boolean handleMessage(Message message) {
+
+            AudiobookService.BookProgress currBook = (AudiobookService.BookProgress) message.obj;
+
+            if(mediaControlBinder.isPlaying()){
+                //seekbar.setProgress(book.getProgress());
+            }
+
+            return false;
+        }
+    });
+     */
+
+    Handler mediaControlHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            final AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) msg.obj;
+            //seekbar.setMax(duration);
+            if(mediaControlBinder.isPlaying()){
+                //seekbar.setProgress(bookProgress.getProgress());
+                bookUri = bookProgress.getBookUri();
+            }
+            /*
+            seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if(fromUser){
+                        mediaControlBinder.seekTo(progress);
+
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+             */
+            return false;
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mediaControlHandler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(@NonNull Message msg) {
-                final AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) msg.obj;
-                seekbar.setMax(duration);
-                if(mediaControlBinder.isPlaying()){
-                    seekbar.setProgress(bookProgress.getProgress());
-                    bookUri = bookProgress.getBookUri();
-                }
-                seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        if(fromUser){
-                            mediaControlBinder.seekTo(progress);
-
-                        }
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-
-                    }
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-
-                    }
-                });
-                return false;
-            }
-        });
-
         if (savedInstanceState != null) {
             //bookDetailsFragment = new BookDetailsFragment();
             //bookList = (BookList) savedInstanceState.getParcelableArrayList(ARG_BOOKLIST);
             book = savedInstanceState.getParcelable(ARG_BOOKLIST);
+
         }
 
         container2Present = findViewById(R.id.container_2) != null;
@@ -129,9 +156,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         // checking on container 2
         bookDetailsFragment = (book == null) ? new BookDetailsFragment() : BookDetailsFragment.newInstance(book);
+        controlFragment = (book == null) ? new ControlFragment() : ControlFragment.newInstance(book);
+
         Intent newIntent = getIntent();
         if (container2Present) {
+
             bookDetailsFragment = new BookDetailsFragment();
+            controlFragment = new ControlFragment();
 
             if (newIntent.hasExtra("Books")) {
                 Bundle extras = getIntent().getExtras();
@@ -139,9 +170,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container_2, bookDetailsFragment)
+                    //.replace(R.id.container_2, bookDetailsFragment)
+                    .replace(R.id.container_1, BookListFragment.newInstance(bookList))
+                    .replace(R.id.container_2, BookDetailsFragment.newInstance(book))
+                    .replace(R.id.subContainerButton, ControlFragment.newInstance(book))
                     .commit();
-        } else {
+        }
+        else {
             if (newIntent.hasExtra("Books")) {
                 Bundle extras = getIntent().getExtras();
                 bookList = extras.getParcelable("Books");
@@ -150,11 +185,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     .beginTransaction()
                     .replace(R.id.container_1, BookListFragment.newInstance(bookList))
                     .replace(R.id.container_control, ControlFragment.newInstance(book))
+                    //.replace(R.id.container_control, controlFragment)
                     .commit();
         }
 
-    }
+        bindIntent = new Intent(this, AudiobookService.class);
+        bindService(bindIntent, bookServiceConnection, BIND_AUTO_CREATE);
 
+    }
 
 
     public void onBackPressed() {
@@ -172,11 +210,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container_1, BookDetailsFragment.newInstance(book))
+                    .replace(R.id.container_control, ControlFragment.newInstance(book))
                     .addToBackStack(null)
                     .commit();
         } else {
             //bookDetailsFragment.changeBook(bookList.get(position));
             bookDetailsFragment.changeBook(book);
+            //controlFragment.bookSelected(book);
         }
         bookIndex = position;
     }
@@ -189,17 +229,22 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
 
     @Override
-    public void play() {
-
+    public void playBook(int id) {
+        if(connected){
+            startService(bindIntent);
+            mediaControlBinder.setProgressHandler(mediaControlHandler);
+            mediaControlBinder.play(id);
+            playWasClicked = true;
+        }
     }
 
     @Override
-    public void pause() {
-
+    public void pauseBook(int id) {
+        mediaControlBinder.pause();
     }
 
     @Override
-    public void stop() {
-
+    public void stopBook(int id) {
+        mediaControlBinder.stop();
     }
 }
