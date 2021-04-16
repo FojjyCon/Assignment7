@@ -214,9 +214,12 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     .addToBackStack(null)
                     .commit();
         } else {
-            //bookDetailsFragment.changeBook(bookList.get(position));
-            bookDetailsFragment.changeBook(book);
-            //controlFragment.bookSelected(book);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container_2, BookDetailsFragment.newInstance(book))
+                    .replace(R.id.subContainerButton, ControlFragment.newInstance(book))
+                    .addToBackStack(null)
+                    .commit();
         }
         bookIndex = position;
     }
