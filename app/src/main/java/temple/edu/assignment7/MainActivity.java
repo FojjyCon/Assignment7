@@ -36,14 +36,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     AudiobookService.MediaControlBinder mediaControlBinder;
     boolean connected = true;
     int duration;
+    int progress;
     Uri bookUri;
     SeekBar seekbar;
     boolean playWasClicked;
 
     Intent bindIntent;
-    private int currentBookId = -1;
+    private static final String ARG_BOOKLIST = "books";
+    private static final String SEEKBAR_PROGRESS = "sbProgress";
+    private static final String DURATION = "bookDuration";
 
-    private static final String ARG_BOOKLIST = "param1";
 
     // service connection
     ServiceConnection bookServiceConnection = new ServiceConnection() {
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             seekbar.setMax(duration);
             if(mediaControlBinder.isPlaying()){
                 seekbar.setProgress(bookProgress.getProgress());
+                progress = book.getDuration();
                 bookUri = bookProgress.getBookUri();
 
             }
@@ -105,10 +108,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             //bookList = (BookList) savedInstanceState.getParcelableArrayList(ARG_BOOKLIST);
 
             book = savedInstanceState.getParcelable(ARG_BOOKLIST);
+            duration = savedInstanceState.getInt(DURATION);
+            progress = savedInstanceState.getInt(SEEKBAR_PROGRESS);
+
         }
 
         container2Present = findViewById(R.id.container_2) != null;
-
+        seekbar = findViewById(R.id.sbState);
         bookList = new BookList();
 
         Fragment frag;
@@ -208,6 +214,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         super.onSaveInstanceState(outState);
 
         outState.putParcelable(ARG_BOOKLIST, book);
+        outState.putInt(SEEKBAR_PROGRESS, progress);
+        outState.putInt(DURATION, duration);
     }
 
     @Override
