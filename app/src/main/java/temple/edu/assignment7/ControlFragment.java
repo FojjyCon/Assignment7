@@ -28,6 +28,8 @@ public class ControlFragment extends Fragment {
 
     boolean connected;
 
+    int duration = 0;
+
     TextView nowPlaying;
     Button btnPlay, btnPause, btnStop;
     SeekBar seekbar;
@@ -76,7 +78,6 @@ public class ControlFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 parentActivity.playBook(book.getId());
-                //parentActivity.playBook(1);
                 if (book != null) {
                     changeBook(book);
                 }
@@ -96,25 +97,6 @@ public class ControlFragment extends Fragment {
                 parentActivity.stopBook(book.getId());
             }
         });
-
-        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-
 
         return v;
     }
