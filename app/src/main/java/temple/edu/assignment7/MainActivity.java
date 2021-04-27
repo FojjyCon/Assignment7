@@ -11,6 +11,7 @@ import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -20,8 +21,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 import edu.temple.audiobookplayer.AudiobookService;
 
@@ -35,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     ControlFragment controlFragment;
     boolean container2Present;
     int bookIndex;
+    int position;
 
     AudiobookService.MediaControlBinder mediaControlBinder;
     boolean connected = true;
@@ -44,12 +51,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     SeekBar seekbar;
     boolean playWasClicked;
     File file;
+    boolean paused;
+    int pausePosition;
 
     Intent bindIntent;
     private static final String ARG_BOOKLIST = "books";
     private static final String SEEKBAR_PROGRESS = "sbProgress";
     private static final String DURATION = "bookDuration";
-
+    private static final String POSITION_VALUE = "pause_progress";
 
     // service connection
     ServiceConnection bookServiceConnection = new ServiceConnection() {
@@ -73,9 +82,17 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             seekbar =  findViewById(R.id.sbState);
             seekbar.setMax(duration);
             if(mediaControlBinder.isPlaying()){
-                seekbar.setProgress(bookProgress.getProgress());
-                progress = book.getDuration();
-                bookUri = bookProgress.getBookUri();
+
+                if (!paused) {
+                    progress = duration;
+                    seekbar.setProgress(bookProgress.getProgress());
+                    bookUri = bookProgress.getBookUri();
+                    pausePosition = bookProgress.getProgress();
+                } else if (paused) {
+                    progress = duration;
+                    seekbar.setProgress(pausePosition);
+                    bookUri = bookProgress.getBookUri();
+                }
 
             }
 
@@ -114,9 +131,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             book = savedInstanceState.getParcelable(ARG_BOOKLIST);
             duration = savedInstanceState.getInt(DURATION);
             progress = savedInstanceState.getInt(SEEKBAR_PROGRESS);
-
+            pausePosition = savedInstanceState.getInt(POSITION_VALUE);
         }
-
         container2Present = findViewById(R.id.container_2) != null;
         seekbar = findViewById(R.id.sbState);
         bookList = new BookList();
@@ -177,10 +193,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     //.replace(R.id.container_control, controlFragment)
                     .commit();
         }
-
         bindIntent = new Intent(this, AudiobookService.class);
         bindService(bindIntent, bookServiceConnection, BIND_AUTO_CREATE);
-
     }
 
 
@@ -191,24 +205,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     @Override
     public void bookClicked(int position) {
-
         book = bookList.get(position);
-        int bookId = book.getId();
-        String internalFilename = String.valueOf(position);
-
-        file = new File(getFilesDir(), internalFilename);
-        try {
-            FileOutputStream outputStream = new FileOutputStream(file);
-            //outputStream.write();
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-
         if (!container2Present) {
-
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.container_1, BookDetailsFragment.newInstance(book))
@@ -233,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         outState.putParcelable(ARG_BOOKLIST, book);
         outState.putInt(SEEKBAR_PROGRESS, progress);
         outState.putInt(DURATION, duration);
+        outState.putInt(POSITION_VALUE, position);
     }
 
     @Override
@@ -257,4 +256,51 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         mediaControlBinder.stop();
         seekbar.setProgress(0);
     }
+
+    protected String doInBackground(String... f_url) {
+        int count;
+        try {
+            URL url = new URL(f_url[0]);
+            URLConnection connection = url.openConnection();
+            connection.connect();
+
+            // this will be useful so that you can show a tipical 0-100%
+            // progress bar
+            int lenghtOfFile = connection.getContentLength();
+
+            // download the file
+            InputStream input = new BufferedInputStream(url.openStream(),
+                    8192);
+
+            // Output stream
+            OutputStream output = new FileOutputStream(Environment
+                    .getExternalStorageDirectory().toString()
+                    + "/2011.kml");
+
+            byte data[] = new byte[1024];
+
+            long total = 0;
+
+            while ((count = input.read(data)) != -1) {
+                total += count;
+                // publishing the progress....
+                // After this onProgressUpdate will be called
+
+                // writing data to file
+                output.write(data, 0, count);
+            }
+
+            // flushing output
+            output.flush();
+
+            // closing streams
+            output.close();
+            input.close();
+
+        } catch (Exception e) {
+        }
+
+        return null;
+    }
+
 }
