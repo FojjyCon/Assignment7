@@ -20,6 +20,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import edu.temple.audiobookplayer.AudiobookService;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookListFragmentInterface, ControlFragment.ControlFragmentInterface {
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     Uri bookUri;
     SeekBar seekbar;
     boolean playWasClicked;
+    File file;
 
     Intent bindIntent;
     private static final String ARG_BOOKLIST = "books";
@@ -189,6 +193,19 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void bookClicked(int position) {
 
         book = bookList.get(position);
+        int bookId = book.getId();
+        String internalFilename = String.valueOf(position);
+
+        file = new File(getFilesDir(), internalFilename);
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            //outputStream.write();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
 
         if (!container2Present) {
 
@@ -232,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void pauseBook(int id) {
         mediaControlBinder.pause();
+
     }
 
     @Override
